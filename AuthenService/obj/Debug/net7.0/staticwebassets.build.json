@@ -1,0 +1,23 @@
+{
+  "Version": 1,
+  "Hash": "jIBnEwCL/H4I402s4fqOrhv6Zm0aCIEO3qP9CmqyXtE=",
+  "Source": "AuthenService",
+  "BasePath": "_content/AuthenService",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "E:\\BUCA\\demo\\OnboardingT6\\Portal\\Portal.csproj",
+      "Version": 2,
+      "Source": "Portal",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

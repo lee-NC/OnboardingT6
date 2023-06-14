@@ -1,0 +1,12 @@
+E:\BUCA\demo\OnboardingT6\Common\Utils\bin\Debug\net7.0\Utils.deps.json
+E:\BUCA\demo\OnboardingT6\Common\Utils\bin\Debug\net7.0\Utils.dll
+E:\BUCA\demo\OnboardingT6\Common\Utils\bin\Debug\net7.0\Utils.pdb
+E:\BUCA\demo\OnboardingT6\Common\Utils\obj\Debug\net7.0\Utils.csproj.AssemblyReference.cache
+E:\BUCA\demo\OnboardingT6\Common\Utils\obj\Debug\net7.0\Utils.GeneratedMSBuildEditorConfig.editorconfig
+E:\BUCA\demo\OnboardingT6\Common\Utils\obj\Debug\net7.0\Utils.AssemblyInfoInputs.cache
+E:\BUCA\demo\OnboardingT6\Common\Utils\obj\Debug\net7.0\Utils.AssemblyInfo.cs
+E:\BUCA\demo\OnboardingT6\Common\Utils\obj\Debug\net7.0\Utils.csproj.CoreCompileInputs.cache
+E:\BUCA\demo\OnboardingT6\Common\Utils\obj\Debug\net7.0\Utils.dll
+E:\BUCA\demo\OnboardingT6\Common\Utils\obj\Debug\net7.0\refint\Utils.dll
+E:\BUCA\demo\OnboardingT6\Common\Utils\obj\Debug\net7.0\Utils.pdb
+E:\BUCA\demo\OnboardingT6\Common\Utils\obj\Debug\net7.0\ref\Utils.dll

@@ -1,0 +1,57 @@
+{
+  "Serilog": {
+    "ElasticConfiguration": {
+      "Uri": "https://localhost:9200",
+      "DefaultIndex": "statging"
+    },
+    "Using": [ "Serilog.Sinks.Console", "Serilog.Enrichers.ClientInfo", "Serilog.Enrichers.ClientInfo" ],
+    "MinimumLevel": {
+      "Default": "Debug",
+      "Override": {
+        "Microsoft.Hosting.Lifetime": "Information",
+        "Microsoft.AspNetCore": "Warning",
+        "Microsoft": "Error",
+        "System": "Error",
+        "Quartz": "Error",
+        "GraphQL": "Warning",
+        "Hateoas": "Warning",
+        "MassTransit": "Information",
+        "Hangfire": "Warning"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "Async",
+        "Args": {
+          "configure": [
+            {
+              "Name": "Console",
+              "Args": {
+                "theme": "Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme::Code, Serilog.Sinks.Console",
+                "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {MachineName} ({ThreadId}) {Message:lj} <s:{SourceContext}>{NewLine}{Exception}"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ],
+    "Destructure": [
+      {
+        "Name": "ToMaximumDepth",
+        "Args": { "maximumDestructuringDepth": 8 }
+      },
+      {
+        "Name": "ToMaximumStringLength",
+        "Args": { "maximumStringLength": 2000 }
+      },
+      {
+        "Name": "ToMaximumCollectionCount",
+        "Args": { "maximumCollectionCount": 10 }
+      }
+    ],
+    "Properties": {
+      "Application": "Demo"
+    }
+  }
+}
