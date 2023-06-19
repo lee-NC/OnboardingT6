@@ -36,10 +36,7 @@ public static class AuthorizationExtensions
                         var rolesClaim = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
                         if (rolesClaim is null) return false;
                         var roleString = rolesClaim.Value;
-                        if (string.IsNullOrEmpty(roleString))
-                        {
-                            return false;
-                        }
+                        if (string.IsNullOrEmpty(roleString)) return false;
 
                         var roleList = roleString.Split(",");
                         return roleList.Contains(Role.AdminClaimValue);
@@ -54,10 +51,7 @@ public static class AuthorizationExtensions
                         var rolesClaim = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
                         if (rolesClaim is null) return false;
                         var roleString = rolesClaim.Value;
-                        if (string.IsNullOrEmpty(roleString))
-                        {
-                            return false;
-                        }
+                        if (string.IsNullOrEmpty(roleString)) return false;
 
                         var roleList = roleString.Split(",");
                         return roleList.Contains(Role.SellerClaimValue);

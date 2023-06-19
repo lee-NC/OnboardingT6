@@ -1,11 +1,6 @@
 using System.Security.Claims;
-using System.Text.Json;
-using Demo.Common.Utils.Crypto;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using static Demo.Common.Utils.RoleEnum;
@@ -43,10 +38,7 @@ public static class AuthorizationExtensions
                             var rolesClaim = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
                             if (rolesClaim is null) return false;
                             var roleString = rolesClaim.Value;
-                            if (string.IsNullOrEmpty(roleString))
-                            {
-                                return false;
-                            }
+                            if (string.IsNullOrEmpty(roleString)) return false;
 
                             var roleList = roleString.Split(",");
                             return roleList.Contains(ADMIN.ToString()) ||
@@ -64,10 +56,7 @@ public static class AuthorizationExtensions
                         var rolesClaim = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
                         if (rolesClaim is null) return false;
                         var roleString = rolesClaim.Value;
-                        if (string.IsNullOrEmpty(roleString))
-                        {
-                            return false;
-                        }
+                        if (string.IsNullOrEmpty(roleString)) return false;
 
                         var roleList = roleString.Split(",");
                         return roleList.Contains(ADMIN.ToString()) || roleList.Contains(COMPANY_ADMIN.ToString());
@@ -82,10 +71,7 @@ public static class AuthorizationExtensions
                         var rolesClaim = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
                         if (rolesClaim is null) return false;
                         var roleString = rolesClaim.Value;
-                        if (string.IsNullOrEmpty(roleString))
-                        {
-                            return false;
-                        }
+                        if (string.IsNullOrEmpty(roleString)) return false;
 
                         var roleList = roleString.Split(",");
                         return roleList.Contains(ADMIN.ToString());

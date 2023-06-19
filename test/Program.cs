@@ -1,4 +1,3 @@
-
 using test.API;
 using test.Filter;
 using test.Handler;
@@ -31,16 +30,16 @@ app.UseHttpsRedirection();
 
 var books = new List<Book>
 {
-    new Book { Id = 1, Title = "name 1", AuthorId = 1, Type = "Horror" },
-    new Book { Id = 2, Title = "name 2", AuthorId = 2, Type = "Romance" },
-    new Book { Id = 3, Title = "name 3", AuthorId = 3, Type = "Detective" },
+    new() { Id = 1, Title = "name 1", AuthorId = 1, Type = "Horror" },
+    new() { Id = 2, Title = "name 2", AuthorId = 2, Type = "Romance" },
+    new() { Id = 3, Title = "name 3", AuthorId = 3, Type = "Detective" }
 };
 
 var authors = new List<Author>
 {
-    new Author { Id = 1, Name = "name 1", Description = " desc 1" },
-    new Author { Id = 2, Name = "name 2", Description = " desc 2" },
-    new Author { Id = 3, Name = "name 3", Description = " desc 3" }
+    new() { Id = 1, Name = "name 1", Description = " desc 1" },
+    new() { Id = 2, Name = "name 2", Description = " desc 2" },
+    new() { Id = 3, Name = "name 3", Description = " desc 3" }
 };
 
 
@@ -50,7 +49,7 @@ app.MapGet("/book", () =>
     for (var i = 0; i < books.Count(); i++)
     {
         var book = books.ElementAt(i);
-        var author = authors.Find(match: a => a.Id == book.AuthorId);
+        var author = authors.Find(a => a.Id == book.AuthorId);
         response.Add(new BookResponse(book, author));
     }
 
@@ -60,10 +59,7 @@ app.MapGet("/book", () =>
 app.MapGet("/book/{id}", (int id) =>
 {
     var book = books.Find(b => b.Id == id);
-    if (book is null)
-    {
-        return Results.NotFound("Not found");
-    }
+    if (book is null) return Results.NotFound("Not found");
 
     return Results.Ok(book);
 });
@@ -106,12 +102,10 @@ app.MapPut("/book/{id}", (UpdateField updateField, int id) =>
 {
     var book = books.Find(b => b.Id == id);
     if (book is null)
-    {
         return TypedResults.Problem(
-            detail: "Khong tim thay ban ghi",
+            "Khong tim thay ban ghi",
             statusCode: StatusCodes.Status404NotFound,
             title: "Not Found");
-    }
 
     book.Title = updateField.Title;
     book.AuthorId = updateField.AuthorId;
@@ -122,10 +116,7 @@ app.MapPut("/book/{id}", (UpdateField updateField, int id) =>
 app.MapDelete("/book/{id}", (int id) =>
 {
     var book = books.Find(b => b.Id == id);
-    if (book is null)
-    {
-        return Results.NotFound("Not found");
-    }
+    if (book is null) return Results.NotFound("Not found");
 
     books.Remove(book);
 
@@ -137,7 +128,6 @@ app.MapGroup("/map")
     .WithTags("book")
     .WithOpenApi()
     .WithMetadata();
-
 
 #endregion
 

@@ -39,6 +39,6 @@ public class SignInEnum
 
 public class AuthorizationEnum
 {
-    public const string AdminManager = "admin_scheme";//for admin and company admin
+    public const string AdminManager = "admin_scheme"; //for admin and company admin
     public const string AccountManager = "user_scheme";
 }

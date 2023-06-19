@@ -1,21 +1,24 @@
-﻿namespace Services.UserService.Model.Response
+﻿namespace Services.UserService.Model.Response;
+
+public enum ResponseCode
 {
-    public enum ResponseCode : int
-    {
-        SUCCESS = 0,
+    SUCCESS = 0,
 
-        #region [CUSTOMER]
-        CUSTOMER_NOT_FOUND = 10000,
-        #endregion
+    #region [CUSTOMER]
 
-        #region [CLIENT]
-        CLIENT_INPUT_INVALID = 30000,
-        #endregion
+    CUSTOMER_NOT_FOUND = 10000,
 
-        #region [SERVER]
-        INTERNAL_SERVICE_ERROR = 50000,
-        #endregion
+    #endregion
 
+    #region [CLIENT]
 
-    }
+    CLIENT_INPUT_INVALID = 30000,
+
+    #endregion
+
+    #region [SERVER]
+
+    INTERNAL_SERVICE_ERROR = 50000,
+
+    #endregion
 }

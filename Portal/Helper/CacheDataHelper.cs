@@ -1,53 +1,50 @@
-﻿namespace Demo.Portal.Helper
+﻿namespace Demo.Portal.Helper;
+
+public class CacheDataHelper
 {
-    public class CacheDataHelper
+    private static CacheDataHelper instance;
+
+    // private constructor
+    private CacheDataHelper()
     {
-        private Dictionary<string, object> defaultCacheItem = new Dictionary<string, object>();
+    }
 
-        /// <summary>
-        /// Configuration values dictionary
-        /// </summary>
-        public Dictionary<string, object> ConfigDictionary
+    /// <summary>
+    ///     Configuration values dictionary
+    /// </summary>
+    public Dictionary<string, object> ConfigDictionary { get; } = new();
+
+    public static CacheDataHelper Instance
+    {
+        get
         {
-            get { return defaultCacheItem; }
+            if (instance == null)
+                instance = new CacheDataHelper();
+            return instance;
         }
+    }
 
-        private static CacheDataHelper instance;
-        public static CacheDataHelper Instance
-        {
-            get
-            {
-                if (instance == null)
-                    instance = new CacheDataHelper();
-                return instance;
-            }
-        }
+    public void SetCache(string key, object value)
+    {
+        if (!ConfigDictionary.ContainsKey(key))
+            ConfigDictionary.Add(key, value);
+    }
 
-        // private constructor
-        private CacheDataHelper() { }
+    public object GetCache(string key)
+    {
+        if (ConfigDictionary.ContainsKey(key))
+            return ConfigDictionary[key];
+        return null;
+    }
 
-        public void SetCache(string key, object value)
-        {
-            if (!defaultCacheItem.ContainsKey(key))
-                defaultCacheItem.Add(key, value);
-        }
+    public object GetAllCache()
+    {
+        return ConfigDictionary;
+    }
 
-        public object GetCache(string key)
-        {
-            if (defaultCacheItem.ContainsKey(key))
-                return defaultCacheItem[key];
-            return null;
-        }
-
-        public object GetAllCache()
-        {
-            return defaultCacheItem;
-        }
-
-        public void ClearCache(string key)
-        {
-            if (defaultCacheItem.ContainsKey(key))
-                defaultCacheItem.Remove(key);
-        }
+    public void ClearCache(string key)
+    {
+        if (ConfigDictionary.ContainsKey(key))
+            ConfigDictionary.Remove(key);
     }
 }

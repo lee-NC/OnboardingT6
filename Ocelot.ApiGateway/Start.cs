@@ -1,5 +1,3 @@
-
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Ocelot.DependencyInjection;
@@ -86,8 +84,7 @@ public class Startup
         app.UseStaticFiles();
 
         if (!env.IsDevelopment())
-        {
-            app.UseStaticFiles(new StaticFileOptions()
+            app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(
                     Path.Combine(Directory.GetCurrentDirectory(), @"Files")),
@@ -95,7 +92,6 @@ public class Startup
                 ServeUnknownFileTypes = true,
                 DefaultContentType = "application/octet-stream"
             });
-        }
 
 
         app.UseRequestLocalization(app.ApplicationServices.GetRequiredService<IOptions<RequestLocalizationOptions>>()

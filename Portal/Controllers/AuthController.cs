@@ -17,11 +17,11 @@ namespace Demo.Portal.Controllers;
 [Route("api/v1/auth")]
 public partial class AuthController : BaseController
 {
-    private readonly ILogger<AuthController> _log;
-    private readonly ICoreClient _coreClient;
     private static string _apiSubName = string.Empty;
     private static string _urlPreviewDocument = string.Empty;
-    private IConfiguration Configuration;
+    private readonly ICoreClient _coreClient;
+    private readonly ILogger<AuthController> _log;
+    private readonly IConfiguration Configuration;
 
     public AuthController(
         ILogger<AuthController> logger,
@@ -39,41 +39,29 @@ public partial class AuthController : BaseController
     [HttpPost]
     public async Task<IActionResult> SignIn(SignInRequest request)
     {
-        if (request is null)
-        {
-            return Json("Dữ liệu không hợp lệ".ToErrorAjaxResult());
-        }
+        if (request is null) return Json("Dữ liệu không hợp lệ".ToErrorAjaxResult());
 
         try
         {
             var resp = _coreClient.QueryNoToken<ApiResponse<TokenResponse>>("/api/v1/pub/sign-in", request,
-                out string message);
+                out var message);
 
 
-            if (resp == null)
-            {
-                return Json(message.ToErrorAjaxResult());
-            }
+            if (resp == null) return Json(message.ToErrorAjaxResult());
 
-            if (resp.Code != 0)
-            {
-                return Json(resp.Message?.ToErrorAjaxResult());
-            }
+            if (resp.Code != 0) return Json(resp.Message?.ToErrorAjaxResult());
 
             var user = resp.Content;
 
             HttpContext.Session.SetString(SignInEnum.USERNAME, request.Username);
             HttpContext.Session.SetString(SignInEnum.PASSWORD, request.Password);
 
-            if (user is null)
-            {
-                return Json("No user found");
-            }
+            if (user is null) return Json("No user found");
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Username),
-                new Claim(ClaimTypes.Role, user.UserId),
+                new(ClaimTypes.NameIdentifier, user.Username),
+                new(ClaimTypes.Role, user.UserId)
             };
 
             var claimsIdentity = new ClaimsIdentity(
@@ -138,32 +126,20 @@ public partial class AuthController : BaseController
             username = jsonToken.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
         }
 
-        if (string.IsNullOrEmpty(username))
-        {
-            return Json("Dữ liệu không hợp lệ".ToErrorAjaxResult());
-        }
+        if (string.IsNullOrEmpty(username)) return Json("Dữ liệu không hợp lệ".ToErrorAjaxResult());
 
         var accessToken = authorizationHeader;
         try
         {
-            ApiRespoinse resp = _coreClient.Query(accessToken, "/api/v1/pub/sign-out", new {username}, out string message,
+            var resp = _coreClient.Query(accessToken, "/api/v1/pub/sign-out", new { username }, out var message,
                 Method.GET);
-            if (resp == null)
-            {
-                return Json(message.ToErrorAjaxResult());
-            }
+            if (resp == null) return Json(message.ToErrorAjaxResult());
 
-            if (resp.Code != 0)
-            {
-                return Json(resp.Message?.ToErrorAjaxResult());
-            }
+            if (resp.Code != 0) return Json(resp.Message?.ToErrorAjaxResult());
 
             var user = resp.Content;
 
-            if (user is null)
-            {
-                return Json("No user found");
-            }
+            if (user is null) return Json("No user found");
 
             await HttpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme);

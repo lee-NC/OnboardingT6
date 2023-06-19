@@ -2,14 +2,15 @@ using System.Reflection;
 using Demo.Common.Logging;
 using Demo.Services.Helper;
 using Demo.Services.Helper.Masstransit;
-using Demo.Services.UserService;
 using Demo.Services.UserService.API;
+using Demo.Services.UserService.Entity.Api;
 using Demo.Workflow.MessageQueue;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Sinks.Elasticsearch;
 using Services.Util.Auth;
 using StackExchange.Redis;
+using UserService.Store;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -18,8 +19,8 @@ var configuration = builder.Configuration;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
 configuration
-    .AddJsonFile($"appsettings.{environment}.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"serilog.{environment}.json", optional: false, reloadOnChange: true);
+    .AddJsonFile($"appsettings.{environment}.json", false, true)
+    .AddJsonFile($"serilog.{environment}.json", false, true);
 var serilog = configuration["Serilog"];
 
 /**
@@ -94,6 +95,7 @@ builder.Services.Configure<RabbitMQSetting>(configuration.GetSection("RabbitMQSe
 builder.Services.AddAuthenticationScheme<UserAuthenticationHandler>(configuration);
 //
 builder.Services.AddMongoDb(configuration);
+builder.Services.AddScoped<IUserEntityStore, UserEntityStore>();
 
 
 var redisConfig = ConfigurationOptions.Parse(
@@ -112,13 +114,9 @@ var rabbitSetting = configuration
     .GetSection("RabbitMQSetting")
     .Get<RabbitMQSetting>();
 if (rabbitSetting is null)
-{
     Log.Error("RabbitMQSetting section missing.");
-}
 else
-{
     builder.Services.AddMasstransitConsumer(rabbitSetting);
-}
 builder.Services.AddHealthChecks();
 builder.Services.AddMvc();
 
@@ -137,12 +135,6 @@ if (string.Equals("Enable", configuration["OpenApiSwagger"], StringComparison.Or
         c.OAuthUsePkce();
     });
 }
-
-app.MapGroup("/api/v1/pub/")
-    .MapPublicUserEndpoints()
-    .WithTags("User Public Api")
-    .WithOpenApi()
-    .WithMetadata();
 
 app.MapGroup("/api/v1/user/")
     .MapUserEndpoints()

@@ -5,13 +5,19 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
-    
+
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="7.0.3" />
+        <Compile Remove="Context\**"/>
+        <EmbeddedResource Remove="Context\**"/>
+        <None Remove="Context\**"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Common\DBBase\DBBase.csproj" />
+        <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="7.0.3"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Common\DBBase\DBBase.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -1,11 +1,10 @@
-﻿namespace test.Model
+﻿namespace test.Model;
+
+public class UpdateField
 {
-    public class UpdateField
-    {
-        public string? Title { get; set; }
+    public string? Title { get; set; }
 
-        public int? AuthorId { get; set; }
+    public int? AuthorId { get; set; }
 
-        public string? Type { get; set; }
-    }
+    public string? Type { get; set; }
 }

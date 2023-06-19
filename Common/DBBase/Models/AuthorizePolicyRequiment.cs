@@ -1,6 +1,5 @@
-﻿namespace Demo.Common.DBBase.Models
+﻿namespace Demo.Common.DBBase.Models;
+
+public class AuthorizePolicyRequiment
 {
-    public class AuthorizePolicyRequiment
-    {
-    }
 }

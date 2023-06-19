@@ -25,12 +25,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Common\DBBase\DBBase.csproj" />
-      <ProjectReference Include="..\Common\Logging\Logging.csproj" />
-      <ProjectReference Include="..\Common\Utils\Utils.csproj" />
-      <ProjectReference Include="..\MessageQueue\MessageQueue.csproj" />
-      <ProjectReference Include="..\Portal\Portal.csproj" />
-      <ProjectReference Include="..\Util.Auth\Util.Auth.csproj" />
+        <ProjectReference Include="..\Common\DBBase\DBBase.csproj" />
+        <ProjectReference Include="..\Common\Logging\Logging.csproj" />
+        <ProjectReference Include="..\Common\Utils\Utils.csproj" />
+        <ProjectReference Include="..\MessageQueue\MessageQueue.csproj" />
+        <ProjectReference Include="..\Portal\Portal.csproj" />
+        <ProjectReference Include="..\UserService.Entity.Api\UserService.Entity.Api.csproj" />
+        <ProjectReference Include="..\Util.Auth\Util.Auth.csproj" />
     </ItemGroup>
 
     <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">

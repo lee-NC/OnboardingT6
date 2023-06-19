@@ -1,8 +1,7 @@
-﻿namespace Demo.Portal.Helper
+﻿namespace Demo.Portal.Helper;
+
+public class SslClientSetting
 {
-    public class SslClientSetting
-    {
-        public string Cert { get; set; }
-        public string Password { get; set; }
-    }
+    public string Cert { get; set; }
+    public string Password { get; set; }
 }

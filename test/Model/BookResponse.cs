@@ -1,30 +1,29 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace test.Model
-{
+namespace test.Model;
 
-    public class BookResponse
+public class BookResponse
+{
+    public BookResponse(Book book, Author? author)
     {
-        public BookResponse(Book book, Author? author)
+        Id = book.Id;
+        Title = book.Title;
+        if (author != null)
         {
-            this.Id = book.Id;
-            this.Title = book.Title;
-            if (author != null)
-            {
-                this.AuthorName = author.Name;
-                this.AuthorDesc = author.Description;
-            }
-            this.Type = book.Type;
+            AuthorName = author.Name;
+            AuthorDesc = author.Description;
         }
 
-        [JsonPropertyName("bookId")]
-        public int Id { get; set; }
-        public string? Title { get; set; }
-
-        public string? AuthorName { get; set; }
-
-        public string? AuthorDesc { get; set; }
-
-        public string? Type { get; set; }
+        Type = book.Type;
     }
+
+    [JsonPropertyName("bookId")] public int Id { get; set; }
+
+    public string? Title { get; set; }
+
+    public string? AuthorName { get; set; }
+
+    public string? AuthorDesc { get; set; }
+
+    public string? Type { get; set; }
 }

@@ -4,12 +4,11 @@ using Demo.ApiGateway.DTOs;
 using Demo.Common.Utils;
 using Demo.Common.Utils.Crypto;
 using Demo.Portal.Helper;
-using Demo.Services.Entities;
-using Demo.Services.UserService.Model;
-using Demo.Services.UserService.Repositories;
-using Microsoft.AspNetCore.Components;
+using Demo.Services.UserService.Entity.Api.Entities;
+using Demo.Services.UserService.Entity.Api.Model;
 using Microsoft.AspNetCore.Mvc;
 using Services.UserService.Model.Response;
+using UserService.Store;
 
 namespace Demo.Services.UserService.API;
 
@@ -45,20 +44,17 @@ public static class UserApi
     }
 
     private static async Task<IResult> DeleteUser(HttpContext context, string id,
-        ILogger<IUserEntityRepository> _logger,
-        IUserEntityRepository _userEntityRepository)
+        ILogger<IUserEntityStore> logger,
+        IUserEntityStore userEntityStore)
     {
-        var rolesClaim = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-        var username = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-        _logger.LogInformation("Delete user by {@roleType}:  {@param}", rolesClaim, username);
+        var userId = context.User.Claims.FirstOrDefault(c => c.Type == "userId").Value;
         try
         {
-            UserEntity userEntity =
-                await _userEntityRepository.FindByUsername(username.ToString());
-            UserEntity entity =
-                await _userEntityRepository.FindByField("_id", id.ToString());
+            var userEntity =
+                await userEntityStore.FindByField("_id", userId);
+            var entity =
+                await userEntityStore.FindByField("_id", id);
             if (entity is null)
-            {
                 return TypedResults.Ok(new ApiClient.ApiResponse
                 {
                     Code = (int)ResponseCode.CLIENT_INPUT_INVALID,
@@ -66,10 +62,8 @@ public static class UserApi
                     Message = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
                     Content = "User not found"
                 });
-            }
 
             if (userEntity.Role == RoleEnum.COMPANY_ADMIN && !userEntity.CompanyId.Equals(entity.CompanyId))
-            {
                 return TypedResults.Ok(new ApiClient.ApiResponse
                 {
                     Code = (int)ResponseCode.CLIENT_INPUT_INVALID,
@@ -77,9 +71,8 @@ public static class UserApi
                     Message = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
                     Content = "Du lieu khong phu hop"
                 });
-            }
 
-            _userEntityRepository.Delete(id.ToString());
+            userEntityStore.Delete(id);
 
             return TypedResults.Ok(new ApiClient.ApiResponse
             {
@@ -91,142 +84,129 @@ public static class UserApi
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            logger.LogError(e.Message);
             throw;
         }
     }
 
     private static async Task<IResult> UpdateUser(HttpContext context, [FromBody] UpdateUserRequest request,
-        ILogger<IUserEntityRepository> _logger,
-        IUserEntityRepository _userEntityRepository)
+        ILogger<IUserEntityStore> logger,
+        IUserEntityStore userEntityStore)
     {
-        var rolesClaim = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-        var username = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-        _logger.LogInformation("Update user by {@roleType}:  {@param}", rolesClaim, username);
-        UserEntity userEntity =
-            await _userEntityRepository.FindByUsername(username.ToString());
-        UserEntity entity =
-            await _userEntityRepository.FindByField("_id", request.UserId);
-        if (entity is null)
+        try
         {
+            var userId = context.User.Claims.FirstOrDefault(c => c.Type == "userId").Value;
+            var userEntity =
+                await userEntityStore.FindByField("_id", userId);
+            var entity =
+                await userEntityStore.FindByField("_id", request.UserId);
+            if (entity is null)
+                return TypedResults.Ok(new ApiClient.ApiResponse
+                {
+                    Code = (int)ResponseCode.CLIENT_INPUT_INVALID,
+                    CodeDesc = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
+                    Message = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
+                    Content = "User not found"
+                });
+
+            if ((userEntity.Role == RoleEnum.COMPANY_ADMIN && !userEntity.CompanyId.Equals(entity.CompanyId)) ||
+                !userEntity.Id.Equals(entity.Id))
+                return TypedResults.Ok(new ApiClient.ApiResponse
+                {
+                    Code = (int)ResponseCode.CLIENT_INPUT_INVALID,
+                    CodeDesc = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
+                    Message = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
+                    Content = "Du lieu khong phu hop"
+                });
+
+            if (!string.IsNullOrWhiteSpace(request.Email)) entity.Email = request.Email;
+
+            if (!string.IsNullOrWhiteSpace(request.FirstName)) entity.FirstName = request.FirstName;
+
+            if (!string.IsNullOrWhiteSpace(request.LastName)) entity.LastName = request.LastName;
+
+            if (request.Sex is not null) entity.Sex = request.Sex;
+
+            if (request.DateOfBirth is not null) entity.DateOfBirth = request.DateOfBirth;
+
+            userEntityStore.Update(entity, entity.Id);
+
+            var response = UserResponse.MapFromModel(entity);
             return TypedResults.Ok(new ApiClient.ApiResponse
             {
-                Code = (int)ResponseCode.CLIENT_INPUT_INVALID,
-                CodeDesc = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
-                Message = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
-                Content = "User not found"
+                Code = (int)ResponseCode.SUCCESS,
+                CodeDesc = ResponseCode.SUCCESS.ToString(),
+                Message = ResponseCode.SUCCESS.ToString(),
+                Content = response
             });
         }
-
-        if ((userEntity.Role == RoleEnum.COMPANY_ADMIN && !userEntity.CompanyId.Equals(entity.CompanyId)) ||
-            !userEntity.Id.Equals(entity.Id))
+        catch (Exception e)
         {
-            return TypedResults.Ok(new ApiClient.ApiResponse
-            {
-                Code = (int)ResponseCode.CLIENT_INPUT_INVALID,
-                CodeDesc = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
-                Message = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
-                Content = "Du lieu khong phu hop"
-            });
+            logger.LogError(e.Message);
+            throw;
         }
-
-        if (!string.IsNullOrWhiteSpace(request.Email))
-        {
-            entity.Email = request.Email;
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.FirstName))
-        {
-            entity.FirstName = request.FirstName;
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.LastName))
-        {
-            entity.LastName = request.LastName;
-        }
-
-        if (request.Sex is not null)
-        {
-            entity.Sex = request.Sex;
-        }
-
-        if (request.DateOfBirth is not null)
-        {
-            entity.DateOfBirth = request.DateOfBirth;
-        }
-
-        _userEntityRepository.Update(entity, entity.Id);
-
-        UserResponse response = UserResponse.MapFromModel(entity);
-        return TypedResults.Ok(new ApiClient.ApiResponse
-        {
-            Code = (int)ResponseCode.SUCCESS,
-            CodeDesc = ResponseCode.SUCCESS.ToString(),
-            Message = ResponseCode.SUCCESS.ToString(),
-            Content = response
-        });
     }
 
     private static async Task<IResult> GetUserById(string id, HttpContext context,
-        ILogger<IUserEntityRepository> _logger,
-        IUserEntityRepository _userEntityRepository)
+        ILogger<IUserEntityStore> logger,
+        IUserEntityStore userEntityStore)
     {
-        var rolesClaim = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-        var username = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-        _logger.LogInformation("Get user by id by {@roleType}:  {@param}", rolesClaim, username);
-        UserEntity userEntity =
-            await _userEntityRepository.FindByUsername(username.ToString());
-        UserEntity entity =
-            await _userEntityRepository.FindByField("_id", id.ToString());
-        if (entity is null)
+        var userId = context.User.Claims.FirstOrDefault(c => c.Type == "userId").Value;
+        try
         {
+            var userEntity =
+                await userEntityStore.FindByField("_id", userId);
+            var entity =
+                await userEntityStore.FindByField("_id", id);
+            if (entity is null)
+                return TypedResults.Ok(new ApiClient.ApiResponse
+                {
+                    Code = (int)ResponseCode.CLIENT_INPUT_INVALID,
+                    CodeDesc = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
+                    Message = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
+                    Content = "User not found"
+                });
+
+            if (userEntity.Role == RoleEnum.COMPANY_ADMIN && !userEntity.CompanyId.Equals(entity.CompanyId))
+                return TypedResults.Ok(new ApiClient.ApiResponse
+                {
+                    Code = (int)ResponseCode.CLIENT_INPUT_INVALID,
+                    CodeDesc = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
+                    Message = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
+                    Content = "Du lieu khong phu hop"
+                });
+
+            var response = UserResponse.MapFromModel(entity);
             return TypedResults.Ok(new ApiClient.ApiResponse
             {
-                Code = (int)ResponseCode.CLIENT_INPUT_INVALID,
-                CodeDesc = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
-                Message = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
-                Content = "User not found"
+                Code = (int)ResponseCode.SUCCESS,
+                CodeDesc = ResponseCode.SUCCESS.ToString(),
+                Message = ResponseCode.SUCCESS.ToString(),
+                Content = response
             });
         }
-
-        if (userEntity.Role == RoleEnum.COMPANY_ADMIN && !userEntity.CompanyId.Equals(entity.CompanyId))
+        catch (Exception e)
         {
-            return TypedResults.Ok(new ApiClient.ApiResponse
-            {
-                Code = (int)ResponseCode.CLIENT_INPUT_INVALID,
-                CodeDesc = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
-                Message = ResponseCode.CLIENT_INPUT_INVALID.ToString(),
-                Content = "Du lieu khong phu hop"
-            });
+            logger.LogError(e.Message);
+            throw;
         }
-
-        UserResponse response = UserResponse.MapFromModel(entity);
-        return TypedResults.Ok(new ApiClient.ApiResponse
-        {
-            Code = (int)ResponseCode.SUCCESS,
-            CodeDesc = ResponseCode.SUCCESS.ToString(),
-            Message = ResponseCode.SUCCESS.ToString(),
-            Content = response
-        });
     }
 
-    private static async Task<IResult> GetAllUser(HttpContext context, ILogger<IUserEntityRepository> _logger,
-        IUserEntityRepository _userEntityRepository)
+    private static async Task<IResult> GetAllUser(HttpContext context, ILogger<IUserEntityStore> logger,
+        IUserEntityStore userEntityStore)
     {
-        var rolesClaim = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-        var username = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-        _logger.LogInformation("Get list users by {@roleType}:  {@param}", rolesClaim, username);
-        UserEntity userEntity =
-            await _userEntityRepository.FindByUsername(username.ToString());
+        var userId = context.User.Claims.FirstOrDefault(c => c.Type == "userId").Value;
+        var userEntity =
+            await userEntityStore.FindByField("_id", userId);
         var items = new List<UserEntity>();
         if (userEntity.Role == RoleEnum.ADMIN)
         {
-            items = await _userEntityRepository.GetAll() as List<UserEntity>;
+            items = await userEntityStore.GetAll();
         }
         else
         {
             var companyId = userEntity.CompanyId;
-            items = await _userEntityRepository.GetAllByCompanyId(companyId) as List<UserEntity>;
+            items = await userEntityStore.GetAllByCompanyId(companyId);
         }
 
         IEnumerable<UserResponse> enDtos = items
@@ -243,23 +223,21 @@ public static class UserApi
     }
 
     private static async Task<IResult> AddUser(HttpContext context, [FromBody] AddUserRequest request,
-        ILogger<IUserEntityRepository> _logger, IUserEntityRepository _userEntityRepository)
+        ILogger<IUserEntityStore> logger, IUserEntityStore userEntityStore)
     {
-        var rolesClaim = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-        var username = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-        _logger.LogInformation("Get add user by {@roleType}:  {@param}", rolesClaim, username);
+        var userId = context.User.Claims.FirstOrDefault(c => c.Type == "userId").Value;
         try
         {
             var userEntity =
-                await _userEntityRepository.FindByUsername(username.ToString());
+                await userEntityStore.FindByField("_id", userId);
 
             var role = request.Role;
             var companyId = request.CompanyId;
-            UserEntity entity = new UserEntity
+            var entity = new UserEntity
             {
                 UserPass = new UserPassCredential
                 {
-                    Username = request.Username,
+                    Username = request.Username
                 },
                 Sex = request.Sex,
                 LastName = request.LastName,
@@ -270,11 +248,11 @@ public static class UserApi
             };
             if (request.Username != null && !string.IsNullOrWhiteSpace(request.Username))
             {
-                var existCus = await _userEntityRepository
+                var existCus = await userEntityStore
                     .FindByUsername(request.Username);
                 if (existCus != null)
                 {
-                    _logger.LogWarning("CreateCustomer: Exist username {@p0}", request.Username);
+                    logger.LogWarning("CreateCustomer: Exist username {@p0}", request.Username);
                     return TypedResults.Ok(new ApiResponse
                     {
                         Code = (int)ResponseCode.CLIENT_INPUT_INVALID,
@@ -293,7 +271,7 @@ public static class UserApi
                 if (!PasswordGenerator.PasswordIsValid(includeLowercase, includeUppercase, includeNumeric,
                         includeSpecial, includeSpace, password) || password.Length < 8)
                 {
-                    _logger.LogWarning("Your password not match password policy");
+                    logger.LogWarning("Your password not match password policy");
                     return TypedResults.Ok(new ApiResponse
                     {
                         Code = (int)ResponseCode.CUSTOMER_NOT_FOUND,
@@ -330,7 +308,7 @@ public static class UserApi
                 entity.Role = request.Role;
             }
 
-            await _userEntityRepository.Create(entity);
+            await userEntityStore.Create(entity);
             return TypedResults.Ok(new ApiClient.ApiResponse
             {
                 Code = (int)ResponseCode.SUCCESS,
@@ -341,20 +319,19 @@ public static class UserApi
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            logger.LogError(e.Message);
             throw;
         }
     }
 
-    private static async Task<IResult> GetUserInfo(ILogger<IUserEntityRepository> _logger,
-        IUserEntityRepository _userEntityRepository, HttpContext context)
+    private static async Task<IResult> GetUserInfo(ILogger<IUserEntityStore> logger,
+        IUserEntityStore userEntityStore, HttpContext context)
     {
-        var rolesClaim = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
-        var username = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+        var userId = context.User.Claims.FirstOrDefault(c => c.Type == "userId").Value;
         try
         {
-            var userEntity = await _userEntityRepository.FindByUsername(username.ToString());
-            UserResponse response = UserResponse.MapFromModel(userEntity);
+            var userEntity = await userEntityStore.FindByField("_id", userId);
+            var response = UserResponse.MapFromModel(userEntity);
             return TypedResults.Ok(new ApiResponse
             {
                 Code = (int)ResponseCode.SUCCESS,
@@ -365,7 +342,7 @@ public static class UserApi
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            logger.LogError(e.Message);
             throw;
         }
     }

@@ -1,6 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authentication;
@@ -11,13 +10,13 @@ namespace test.Handler;
 
 public partial class AuthenHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
-    private readonly ILogger<AuthenHandler> _logger;
-
     private static readonly List<User> Users = new()
     {
-        new User() { Username = "admin", Password = "password", Role = "Administrator" },
-        new User() { Username = "seller", Password = "password", Role = "Seller" },
+        new User { Username = "admin", Password = "password", Role = "Administrator" },
+        new User { Username = "seller", Password = "password", Role = "Seller" }
     };
+
+    private readonly ILogger<AuthenHandler> _logger;
 
     public AuthenHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger,
         UrlEncoder encoder, ISystemClock clock, ILogger<AuthenHandler> logger1) : base(options, logger, encoder, clock)
@@ -66,8 +65,8 @@ public partial class AuthenHandler : AuthenticationHandler<AuthenticationSchemeO
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, "" + customer.Username),
-            new Claim(ClaimTypes.Role, "" + customer.Role),
+            new(ClaimTypes.NameIdentifier, "" + customer.Username),
+            new(ClaimTypes.Role, "" + customer.Role)
         };
 
         var identity = new ClaimsIdentity(claims, "password");

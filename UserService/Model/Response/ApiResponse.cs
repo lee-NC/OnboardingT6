@@ -1,31 +1,31 @@
-﻿
-namespace Services.UserService.Model.Response
+﻿namespace Services.UserService.Model.Response;
+
+public class ApiResponse
 {
-    public class ApiResponse
+    public ApiResponse()
     {
-        private int _code;
-        public int Code { get { return _code; } set { _code = value; } }
-        public string? CodeDesc { get; set; }
-
-        public string? Message { get; set; }
-
-        public object? Content { get; set; }
-
-        public ApiResponse() { }
-
-        public ApiResponse(ResponseCode code, string message)
-        {
-            _code = (int)code;
-            CodeDesc = code.ToString();
-            Message = message;
-        }
-
-        public ApiResponse(ResponseCode code, string message, object content)
-        {
-            _code = (int)code;
-            CodeDesc = code.ToString();
-            Message = message;
-            Content = content;
-        }
     }
+
+    public ApiResponse(ResponseCode code, string message)
+    {
+        Code = (int)code;
+        CodeDesc = code.ToString();
+        Message = message;
+    }
+
+    public ApiResponse(ResponseCode code, string message, object content)
+    {
+        Code = (int)code;
+        CodeDesc = code.ToString();
+        Message = message;
+        Content = content;
+    }
+
+    public int Code { get; set; }
+
+    public string? CodeDesc { get; set; }
+
+    public string? Message { get; set; }
+
+    public object? Content { get; set; }
 }

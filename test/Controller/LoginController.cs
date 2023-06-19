@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -13,18 +12,18 @@ namespace test.Controller;
 [ApiController]
 public class LoginController : ControllerBase
 {
+    private static readonly List<User> Users = new()
+    {
+        new User { Username = "admin", Password = "password", Role = "Administrator" },
+        new User { Username = "seller", Password = "password", Role = "Seller" }
+    };
+
     private readonly IConfiguration _config;
 
     public LoginController(IConfiguration config)
     {
         _config = config;
     }
-
-    private static readonly List<User> Users = new()
-    {
-        new User() { Username = "admin", Password = "password", Role = "Administrator" },
-        new User() { Username = "seller", Password = "password", Role = "Seller" },
-    };
 
     [AllowAnonymous]
     [HttpPost]
@@ -67,10 +66,7 @@ public class LoginController : ControllerBase
         var currentUser = Users.FirstOrDefault(o =>
             o.Username.ToLower() == userLogin.Username.ToLower() && o.Password == userLogin.Password);
 
-        if (currentUser != null)
-        {
-            return currentUser;
-        }
+        if (currentUser != null) return currentUser;
 
         return null;
     }

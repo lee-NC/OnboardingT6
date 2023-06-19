@@ -2,6 +2,7 @@ using System.Reflection;
 using AuthenService.Store;
 using Demo.Common.Logging;
 using Demo.Services.AuthenService;
+using Demo.Services.AuthenService.API;
 using Demo.Services.AuthenService.Helper;
 using Demo.Workflow.MessageQueue;
 using Microsoft.OpenApi.Models;
@@ -17,8 +18,8 @@ var configuration = builder.Configuration;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
 configuration
-    .AddJsonFile($"appsettings.{environment}.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"serilog.{environment}.json", optional: false, reloadOnChange: true);
+    .AddJsonFile($"appsettings.{environment}.json", false, true)
+    .AddJsonFile($"serilog.{environment}.json", false, true);
 var serilog = configuration["Serilog"];
 
 /**
@@ -52,6 +53,7 @@ Log.Logger = new LoggerConfiguration()
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog();
 builder.Host.UseSerilog();
+
 #endregion
 
 builder.Services.AddProblemDetails(o => o.CustomizeProblemDetails = ctx =>
@@ -92,7 +94,6 @@ builder.Services.AddResponseCompression(options => { options.EnableForHttps = tr
  * Authenticationhandler, currently support challenge scheme 
  */
 builder.Services.AddAuthenticationScheme<DemoAuthenticationHandler>(configuration);
-
 /**
  * 
  */
@@ -101,6 +102,7 @@ builder.Services.Configure<RabbitMQSetting>(configuration.GetSection("RabbitMQSe
 // Register database repositories
 builder.Services.AddMongoDb(configuration);
 builder.Services.AddScoped<ITransactionStore, TransactionStore>();
+builder.Services.AddScoped<IUserEntityStore, UserEntityStore>();
 
 // Distributed caching using redis
 
@@ -123,14 +125,10 @@ var rabbitSetting = configuration
     .GetSection("RabbitMQSetting")
     .Get<RabbitMQSetting>();
 if (rabbitSetting is null)
-{
     Log.Error("RabbitMQSetting section missing.");
-}
 else
-{
     // Register service only when setting section ok
     builder.Services.AddMasstransitClient(rabbitSetting);
-}
 builder.Services.AddHealthChecks();
 builder.Services.AddMvc();
 
@@ -140,7 +138,10 @@ app.UseSerilogRequestLogging(options =>
 {
     options.EnrichDiagnosticContext = EnrichDiagnosticContext.EnrichFromRequest;
 });
-
+// builder.Services.AddRateLimiter(options =>
+// {
+//     options.AddPolicy<string, UserServicePackRateLimitPolicy>(UserServicePackRateLimitPolicy.Name);
+// });
 // Configure the HTTP request pipeline.
 if (string.Equals("Enable", configuration["OpenApiSwagger"], StringComparison.OrdinalIgnoreCase))
 {
@@ -154,6 +155,12 @@ if (string.Equals("Enable", configuration["OpenApiSwagger"], StringComparison.Or
         c.OAuthUsePkce();
     });
 }
+
+app.MapGroup("/api/v1/pub/")
+    .MapPublicUserEndpoints()
+    .WithTags("User Public Api")
+    .WithOpenApi()
+    .WithMetadata();
 
 app.UseResponseCompression();
 app.UseHttpsRedirection();

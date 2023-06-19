@@ -6,7 +6,7 @@ namespace LogService.Entities;
 [BsonIgnoreExtraElements]
 public class TransactionLog : EntityBase
 {
-    [BsonElement("user")] public TransactionCustomer Customer { get; set; }
+    [BsonElement("user")] public TransactionUser User { get; set; }
 
     [BsonElement("request")] public byte[] Request { get; set; }
 
@@ -15,7 +15,7 @@ public class TransactionLog : EntityBase
     [BsonElement("response")] public byte[] Response { get; set; }
 }
 
-public class TransactionCustomer
+public class TransactionUser
 {
     [BsonElement("id")] public string Id { get; set; }
     [BsonElement("name")] public string Username { get; set; }

@@ -2,17 +2,16 @@
 using Demo.Workflow.MessageQueue.Request;
 using MassTransit;
 
-namespace Demo.Services.AuthenService.Helper
+namespace Demo.Services.AuthenService.Helper;
+
+public static class MasstransitStartupHelper
 {
-    public static class MasstransitStartupHelper
+    /// <summary>
+    /// </summary>
+    /// <param name="services"></param>
+    public static void AddMasstransitClient(this IServiceCollection services, RabbitMQSetting rabbit)
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="services"></param>
-        public static void AddMasstransitClient(this IServiceCollection services, RabbitMQSetting rabbit)
-        {
-            services.AddMassTransit(cfg =>
+        services.AddMassTransit(cfg =>
             {
                 cfg.UsingRabbitMq((context, cfg1) =>
                 {
@@ -25,7 +24,6 @@ namespace Demo.Services.AuthenService.Helper
                 });
                 cfg.AddRequestClient<AuthenRequest>(TimeSpan.FromSeconds(rabbit.TimeoutSeconds));
             }
-            );
-        }
+        );
     }
 }

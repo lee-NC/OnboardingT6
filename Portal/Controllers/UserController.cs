@@ -1,6 +1,5 @@
 using Demo.ApiGateway.DTOs;
 using Demo.Portal.Helper;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using RestSharp;
 
@@ -9,12 +8,12 @@ namespace Demo.Portal.Controllers;
 [Route("api/v1/user/")]
 public class UserController : BaseController
 {
-    
-    private readonly ILogger<UserController> _log;
-    private readonly ICoreClient _coreClient;
     private static string _apiSubName = string.Empty;
     private static string _urlPreviewDocument = string.Empty;
-    private IConfiguration Configuration;
+    private readonly ICoreClient _coreClient;
+
+    private readonly ILogger<UserController> _log;
+    private readonly IConfiguration Configuration;
 
     public UserController(
         ILogger<UserController> logger,
@@ -32,36 +31,33 @@ public class UserController : BaseController
     [ServiceFilter(typeof(SessionFilter))]
     public async Task<IActionResult> GetAll()
     {
-        ApiRespoinse resp = await SendToServices("/api/v1/user/all", new {}, Method.GET);
+        var resp = await SendToServices("/api/v1/user/all", new { }, Method.GET);
         return Ok(resp);
     }
-    
+
     [Route("info")]
     [HttpGet]
     [ServiceFilter(typeof(SessionFilter))]
     public async Task<IActionResult> GetUserInfo()
     {
-        ApiRespoinse resp = await SendToServices("/api/v1/user/info", new {}, Method.GET);
+        var resp = await SendToServices("/api/v1/user/info", new { }, Method.GET);
         return Ok(resp);
     }
 
     [Route("")]
-
     [HttpPost]
     [ServiceFilter(typeof(SessionFilter))]
     public async Task<IActionResult> AddUser(AddUserRequest request)
     {
         try
         {
-            ApiRespoinse resp = await SendToServices("/api/v1/user/add", request, Method.POST);
+            var resp = await SendToServices("/api/v1/user/add", request, Method.POST);
             if (resp != null && resp.Code == 0)
-            {
                 return Ok(new
                 {
                     code = 0,
                     Content = string.Empty
                 });
-            }
         }
         catch (Exception ex)
         {
@@ -82,15 +78,13 @@ public class UserController : BaseController
     {
         try
         {
-            ApiRespoinse resp = await SendToServices("/api/v1/user/{id}", new {id}, Method.GET);
+            var resp = await SendToServices("/api/v1/user/{id}", new { id }, Method.GET);
             if (resp != null && resp.Code == 0)
-            {
                 return Ok(new
                 {
                     code = 0,
                     Content = string.Empty
                 });
-            }
         }
         catch (Exception ex)
         {
@@ -106,21 +100,18 @@ public class UserController : BaseController
 
     [Route("")]
     [HttpPut]
-
     [ServiceFilter(typeof(SessionFilter))]
     public async Task<IActionResult> UpdateUserInfo(UpdateUserRequest request)
     {
         try
         {
-            ApiRespoinse resp = await SendToServices("/api/v1/user/update", request, Method.PUT);
+            var resp = await SendToServices("/api/v1/user/update", request, Method.PUT);
             if (resp != null && resp.Code == 0)
-            {
                 return Ok(new
                 {
                     code = 0,
                     Content = string.Empty
                 });
-            }
         }
         catch (Exception ex)
         {
@@ -137,21 +128,18 @@ public class UserController : BaseController
 
     [Route("{id}")]
     [HttpDelete]
-
     [ServiceFilter(typeof(SessionFilter))]
     public async Task<IActionResult> RemoveUser(string id)
     {
         try
         {
-            ApiRespoinse resp = await SendToServices("/api/v1/user/{id}", new {id}, Method.DELETE);
+            var resp = await SendToServices("/api/v1/user/{id}", new { id }, Method.DELETE);
             if (resp != null && resp.Code == 0)
-            {
                 return Ok(new
                 {
                     code = 0,
                     Content = string.Empty
                 });
-            }
         }
         catch (Exception ex)
         {
@@ -168,6 +156,6 @@ public class UserController : BaseController
     private async Task<ApiRespoinse> SendToServices(string path, object request, Method method)
     {
         var accessToken = Request.Headers["Authorization"].ToString();
-        return _coreClient.Query(accessToken, path, request, out string mesg, method);
+        return _coreClient.Query(accessToken, path, request, out var mesg, method);
     }
 }

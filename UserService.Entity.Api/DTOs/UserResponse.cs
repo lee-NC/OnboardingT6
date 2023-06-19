@@ -1,7 +1,6 @@
-using Demo.Common.Utils;
-using Demo.Services.Entities;
+using Demo.Services.UserService.Entity.Api.Entities;
 
-namespace Demo.Services.UserService.Model;
+namespace Demo.Services.UserService.Entity.Api.Model;
 
 public class UserResponse
 {
@@ -20,7 +19,8 @@ public class UserResponse
 
     public static UserResponse MapFromModel(UserEntity userEntity)
     {
-        return new UserResponse {  
+        return new UserResponse
+        {
             Id = userEntity.Id.ToString(),
             Username = userEntity.UserPass.Username,
             DateCreated = userEntity.DataCreated,
