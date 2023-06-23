@@ -10,6 +10,8 @@ using Serilog;
 using Serilog.Sinks.Elasticsearch;
 using Services.Util.Auth;
 using StackExchange.Redis;
+using UserService.Helper;
+using UserService.Helper.Telegram;
 using UserService.Store;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -93,9 +95,14 @@ builder.Services.Configure<RabbitMQSetting>(configuration.GetSection("RabbitMQSe
  * Authenticationhandler, currently support challenge scheme 
  */
 builder.Services.AddAuthenticationScheme<UserAuthenticationHandler>(configuration);
-//
+
+// Telegram bot for notification
+builder.Services.AddTelegramBot(configuration);
+
+// Register database repositories
 builder.Services.AddMongoDb(configuration);
 builder.Services.AddScoped<IUserEntityStore, UserEntityStore>();
+builder.Services.AddHangfireService(configuration.GetSection("IMongoDbSettings:Host").Value ?? "", $"telegram_bot");
 
 
 var redisConfig = ConfigurationOptions.Parse(

@@ -6,8 +6,10 @@ using Demo.Common.Utils.Crypto;
 using Demo.Portal.Helper;
 using Demo.Services.UserService.Entity.Api.Entities;
 using Demo.Services.UserService.Entity.Api.Model;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Services.UserService.Model.Response;
+using UserService.Helper.Job;
 using UserService.Store;
 
 namespace Demo.Services.UserService.API;
@@ -39,8 +41,26 @@ public static class UserApi
         groups.MapGet("", GetUserById)
             .RequireAuthorization("admin")
             .AddEndpointFilter(EndPointFilter);
+        
+        groups.MapGet("report", SendReportJob)
+            .AddEndpointFilter(EndPointFilter);
 
         return groups;
+    }
+
+    private static async Task SendReportJob(HttpContext context, ILogger<IUserEntityStore> logger)
+    {
+        try
+        {
+            RecurringJob.AddOrUpdate<IWeekReportJob>("send_report_weekly", c => c.Excute(),
+                () => { return "0 0 8 */7 * *"; });
+            logger.LogInformation("Job is running");
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e.Message);
+            throw;
+        }
     }
 
     private static async Task<IResult> DeleteUser(HttpContext context, string id,

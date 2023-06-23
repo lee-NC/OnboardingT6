@@ -43,6 +43,15 @@ public class UserController : BaseController
         var resp = await SendToServices("/api/v1/user/info", new { }, Method.GET);
         return Ok(resp);
     }
+    
+    [Route("report")]
+    [HttpGet]
+    [ServiceFilter(typeof(SessionFilter))]
+    public async Task<IActionResult> GetWeeklyReport()
+    {
+        var resp = await SendToServices("/api/v1/user/report", new { }, Method.GET);
+        return Ok(resp);
+    }
 
     [Route("")]
     [HttpPost]

@@ -22,6 +22,11 @@
         <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="9.0.1" />
         <PackageReference Include="StackExchange.Redis" Version="2.6.111" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+        <PackageReference Include="ClosedXML" Version="0.101.0" />
+        <PackageReference Include="ClosedXML.Report" Version="0.2.6" />
+        <PackageReference Include="Hangfire" Version="1.8.2" />
+        <PackageReference Include="Hangfire.Mongo" Version="1.9.6" />
+        <PackageReference Include="Telegram.Bot" Version="19.0.0" />
     </ItemGroup>
 
     <ItemGroup>
