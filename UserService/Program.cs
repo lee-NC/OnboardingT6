@@ -1,9 +1,10 @@
 using System.Reflection;
 using Demo.Common.Logging;
+using Demo.Services.CompanyService.Entity.Api;
 using Demo.Services.Helper;
 using Demo.Services.Helper.Masstransit;
 using Demo.Services.UserService.API;
-using Demo.Services.UserService.Entity.Api;
+using Demo.Services.UserService.Store;
 using Demo.Workflow.MessageQueue;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -102,6 +103,7 @@ builder.Services.AddTelegramBot(configuration);
 // Register database repositories
 builder.Services.AddMongoDb(configuration);
 builder.Services.AddScoped<IUserEntityStore, UserEntityStore>();
+builder.Services.AddScoped<ICompanyEntityStore, CompanyEntityStore>();
 builder.Services.AddHangfireService(configuration.GetSection("IMongoDbSettings:Host").Value ?? "", $"telegram_bot");
 
 

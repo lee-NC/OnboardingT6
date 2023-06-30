@@ -224,7 +224,7 @@ public class AuthenticationConsumer : IConsumer<AuthenRequest>
         }
 
         var result = EntityUtils.VerifyPassword(
-            credential.PasswordHash, param.Password, credential.PasswordSalt);
+            credential.PasswordHash, param.Password+"", credential.PasswordSalt);
         if (!result)
         {
             _logger.LogError("UserPass Authen Error: Password not match. ClientId {@p0}", clientId);

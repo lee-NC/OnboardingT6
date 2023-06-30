@@ -1,7 +1,9 @@
 using CompanyService.Entity.Api.Entities;
 using CompanyService.Entity.Api.Repositories;
+using Demo.Services.UserService.Entity.Api.Entities;
+using Demo.Services.UserService.Entity.Api.Repositories;
 
-namespace CompanyService.Store;
+namespace Demo.Services.UserService.Store;
 
 public interface ICompanyEntityStore
 {

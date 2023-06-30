@@ -1,14 +1,17 @@
 using System.Diagnostics;
 using System.Security.Claims;
+using CompanyService.Entity.Api.Entities;
 using Demo.ApiGateway.DTOs;
 using Demo.Common.Utils;
 using Demo.Common.Utils.Crypto;
 using Demo.Portal.Helper;
 using Demo.Services.UserService.Entity.Api.Entities;
 using Demo.Services.UserService.Entity.Api.Model;
+using Demo.Services.UserService.Model.Response;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc;
-using Services.UserService.Model.Response;
+using Demo.Services.UserService.Model.Response;
+using Demo.Services.UserService.Store;
 using UserService.Helper.Job;
 using UserService.Store;
 
@@ -41,7 +44,7 @@ public static class UserApi
         groups.MapGet("", GetUserById)
             .RequireAuthorization("admin")
             .AddEndpointFilter(EndPointFilter);
-        
+
         groups.MapGet("report", SendReportJob)
             .AddEndpointFilter(EndPointFilter);
 
@@ -64,8 +67,8 @@ public static class UserApi
     }
 
     private static async Task<IResult> DeleteUser(HttpContext context, string id,
-        ILogger<IUserEntityStore> logger,
-        IUserEntityStore userEntityStore)
+        ILogger<IUserEntityStore> logger, ILogger<ICompanyEntityStore> logger1,
+        ICompanyEntityStore companyEntityStore, IUserEntityStore userEntityStore)
     {
         var userId = context.User.Claims.FirstOrDefault(c => c.Type == "userId").Value;
         try
@@ -93,6 +96,21 @@ public static class UserApi
                 });
 
             userEntityStore.Delete(id);
+
+            if (entity.Role.Equals(RoleEnum.SELLER) || entity.Role.Equals(RoleEnum.COMPANY_ADMIN))
+            {
+                var companyEntity = await companyEntityStore.FindByField("_id", entity.CompanyId);
+                if (companyEntity.Employees.FindAll(e => e.Role == RoleEnum.COMPANY_ADMIN).Count == 1)
+                {
+                    await companyEntityStore.Delete(companyEntity.Id.ToString());
+                }
+                else
+                {
+                    Employee employee = companyEntity.Employees.Find(e => e.UserId != entity.Id);
+                    companyEntity.Employees.Remove(employee);
+                    await companyEntityStore.Update(companyEntity);
+                }
+            }
 
             return TypedResults.Ok(new ApiClient.ApiResponse
             {
@@ -243,7 +261,8 @@ public static class UserApi
     }
 
     private static async Task<IResult> AddUser(HttpContext context, [FromBody] AddUserRequest request,
-        ILogger<IUserEntityStore> logger, IUserEntityStore userEntityStore)
+        ILogger<IUserEntityStore> logger, IUserEntityStore userEntityStore, ILogger<ICompanyEntityStore> logger1,
+        ICompanyEntityStore companyEntityStore)
     {
         var userId = context.User.Claims.FirstOrDefault(c => c.Type == "userId").Value;
         try
@@ -329,6 +348,23 @@ public static class UserApi
             }
 
             await userEntityStore.Create(entity);
+
+            entity = await userEntityStore.FindByUsername(entity.UserPass.Username);
+
+            if (entity.Role.Equals(RoleEnum.SELLER) || entity.Role.Equals(RoleEnum.COMPANY_ADMIN))
+            {
+                var companyEntity = await companyEntityStore.FindByField("_id", entity.CompanyId);
+                companyEntity.Employees.Add(new Employee
+                {
+                    UserId = entity.Id,
+                    Sex = entity.Sex,
+                    FirstName = entity.FirstName,
+                    LastName = entity.LastName,
+                    Role = entity.Role
+                });
+                await companyEntityStore.Update(companyEntity);
+            }
+
             return TypedResults.Ok(new ApiClient.ApiResponse
             {
                 Code = (int)ResponseCode.SUCCESS,
