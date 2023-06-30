@@ -1,4 +1,4 @@
-﻿namespace Services.UserService.Model.Response;
+﻿namespace Demo.Services.UserService.Model.Response;
 
 public enum ResponseCode
 {
@@ -7,6 +7,12 @@ public enum ResponseCode
     #region [CUSTOMER]
 
     CUSTOMER_NOT_FOUND = 10000,
+
+    #endregion
+    
+    #region [COMPANY]
+
+    COMPANY_NOT_FOUND = 10000,
 
     #endregion
 

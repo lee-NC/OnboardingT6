@@ -1,14 +1,15 @@
 using System.Diagnostics;
 using System.Security.Claims;
 using CompanyService.Entity.Api.Entities;
-using CompanyService.Store;
+using Demo.Services.UserService.Entity.Api.Entities;
+using Demo.Services.UserService.Store;
 using Demo.ApiGateway.DTOs;
 using Demo.Common.Utils;
 using Demo.Portal.Helper;
 using Microsoft.AspNetCore.Mvc;
-using Services.CompanyService.Model.Response;
+using Demo.Services.UserService.Model.Response;
 
-namespace CompanyService.API;
+namespace Demo.Services.UserService.API;
 
 public static class CompanyApi
 {

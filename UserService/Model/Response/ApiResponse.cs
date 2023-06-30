@@ -1,4 +1,4 @@
-﻿namespace Services.UserService.Model.Response;
+﻿namespace Demo.Services.UserService.Model.Response;
 
 public class ApiResponse
 {

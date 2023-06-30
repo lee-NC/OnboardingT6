@@ -33,6 +33,7 @@
         <ProjectReference Include="..\Common\DBBase\DBBase.csproj" />
         <ProjectReference Include="..\Common\Logging\Logging.csproj" />
         <ProjectReference Include="..\Common\Utils\Utils.csproj" />
+        <ProjectReference Include="..\CompanyService.Entity.Api\CompanyService.Entity.Api.csproj" />
         <ProjectReference Include="..\MessageQueue\MessageQueue.csproj" />
         <ProjectReference Include="..\Portal\Portal.csproj" />
         <ProjectReference Include="..\UserService.Entity.Api\UserService.Entity.Api.csproj" />
