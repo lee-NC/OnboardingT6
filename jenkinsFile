@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                bat 'dotnet build --configuration Release ./Ocelot.ApiGateway/Ocelot.ApiGateway.csproj'
+				bat 'dotnet build --configuration Release ./Portal/Portal.csproj'
+				bat 'dotnet build --configuration Release ./AuthenService/AuthenService.csproj'
+            }
+        }
+        stage("Release Stage") {
+            steps {
+                bat 'dotnet build %WORKSPACE%\\OnboardingT6.sln /p:PublishProfile=" %WORKSPACE%\\demo_git_scm\\Properties\\PublishProfiles\\FolderProfile.pubxml" /p:Platform="Any CPU" /p:DeployOnBuild=true /m'
+            }
+        }
+    }
+    post { 
+        always { 
+            cleanWs()
+        }
+    }
+
+}
